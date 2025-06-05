@@ -107,37 +107,72 @@ class Robot:
 
         return min_dist
     
-    def contourner_obstacle(self, obstacles, dt, fig, scale):
+
+
+    
+    def contourner_obstacle(self, obstacles, dt, fig, scale, target):
         print("Début contournement...")
+        # on ralenti
+        self.x[3] = 7.0
+        # Trouver l’obstacle frontal le plus proche
+        f_obs = None
+        min_dist = float('inf')
+        for obs in obstacles:
+            dist = self.sonar_front(obs)
+            if dist is not None and dist < min_dist:
+                min_dist = dist
+                f_obs = obs
 
-        # Étape 1 : pivot de 90 degrés (sens horaire)
-        angle_vise = self.x[2] - pi / 2
+        if f_obs is None:
+            print("Erreur : aucun obstacle détecté frontalement.")
+            return
+
+        # Calcul de l’angle relatif (exactement comme dans sonar_front)
+        x_pos, y_pos, theta = float(self.x[0]), float(self.x[1]), float(self.x[2])
+        ox, oy = float(f_obs[0]), float(f_obs[1])
+        dx, dy = ox - x_pos, oy - y_pos
+        angle_to_obs = atan2(dy, dx)
+        angle_diff = (angle_to_obs - theta + pi) % (2 * pi) - pi
+
+        # Choisir le côté le plus direct : droite si angle_diff < 0
+        if angle_diff > 0:
+            cote = 'droite'
+            direction = -1.0
+            sonar_check = self.sonar_left  # obstacle à gauche du robot après pivot
+            angle_vise = theta - pi / 2
+        else:
+            cote = 'gauche'
+            direction = 1.0
+            sonar_check = self.sonar_right  # obstacle à droite après pivot
+            angle_vise = theta + pi / 2
+
+        print(f"Contournement par la {cote}")
+
+        # Étape 1 : pivot de 90° dans la direction choisie
         while abs((self.x[2] - angle_vise + pi) % (2 * pi) - pi) > 0.05:
-            omega = -1.0  # vitesse angulaire négative pour tourner à droite
-            a = 0.0
-            self.update(array([[omega], [a]]), dt)
-            self._dessine_et_pause(obstacles, fig, scale)
-        
-        print("Avance avec mur à gauche...")
+            self.update(array([[direction], [0.0]]), dt)
+            self._dessine_et_pause(obstacles, fig, scale, target)
 
-        # Étape 2 : avancer jusqu'à ce que plus rien ne soit détecté à gauche
+        print("Avance en longeant le mur...")
+
+        # Étape 2 : avancer jusqu’à ce que le sonar latéral ne détecte plus rien
         while True:
-            closest_left = None
+            closest = None
             for obs in obstacles:
-                dist = self.sonar_left(obs)
-                if dist is not None and (closest_left is None or dist < closest_left):
-                    closest_left = dist
-            
-            if closest_left is None or closest_left > 10.0:
-                print("Obstacle contourné.")
-                break  # fin du contournement
-            
-            omega = 0.0
-            a = 0.0
-            self.update(array([[omega], [a]]), dt)
-            self._dessine_et_pause(obstacles, fig, scale)
+                dist = sonar_check(obs)
+                if dist is not None and (closest is None or dist < closest):
+                    closest = dist
 
-    def _dessine_et_pause(self, obstacles, fig, scale, target=None):
+            if closest is None or closest > 10.0:
+                print("Obstacle contourné.")
+                break
+
+            self.update(array([[0.0], [0.0]]), dt)
+            self._dessine_et_pause(obstacles, fig, scale, target)
+
+        
+
+    def _dessine_et_pause(self, obstacles, fig, scale, target):
         clf()
         axis('square')
         axis([-scale, scale, -scale, scale])
@@ -152,6 +187,21 @@ class Robot:
 
         fig.canvas.draw()
         pause(0.015)
+
+
+    def choisir_cote_contournement(self, obstacle):
+        """
+        Return gauche ou droite en fonction de la direction qui demande le moins de rotation pour contourner l'obstacle 
+        """
+        x_pos, y_pos, theta = float(self.x[0]), float(self.x[1]), float(self.x[2])
+        ox, oy = float(obstacle[0]), float(obstacle[1])
+
+        angle_to_obs = atan2(oy - y_pos, ox - x_pos)
+
+        angle_diff_right = abs((angle_to_obs - (theta - pi / 2) + pi) % (2 * pi) - pi)
+        angle_diff_left = abs((angle_to_obs - (theta + pi / 2) + pi) % (2 * pi) - pi)
+
+        return 'droite' if angle_diff_right < angle_diff_left else 'gauche'
 
 
 

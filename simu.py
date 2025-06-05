@@ -16,7 +16,8 @@ class Simulation:
         self.targets_caught = 0     # Nombre de cibles atteintes
 
         # Initialisation du robot (position x, y, angle theta, vitesse)
-        self.robot = Robot(array([0.0, 0.0, 0.0, 10.0]))
+        v = 20.0
+        self.robot = Robot(array([0.0, 0.0, 0.0, v]))
 
         # Contrôleur pour générer les commandes de mouvement du robot
         self.control = Control()
@@ -73,7 +74,8 @@ class Simulation:
                 
 
             # Calcul de la commande de contrôle (vitesse angulaire, accélération)
-            
+
+            self.robot.x[3] = 20
             u = self.control.calcul_commande(self.robot.x, self.target)
 
             # Mise à jour de l'état du robot selon la commande et le pas de temps
@@ -107,6 +109,6 @@ class Simulation:
 
 # Lancement de la simulation si ce fichier est exécuté en tant que programme principal
 if __name__ == "__main__":
-    print("\nUse arrows to control, + and - to zoom, ESC to quit.\n")
+    print("Simulation en cours...")
     sim = Simulation()
     sim.run()
