@@ -46,17 +46,7 @@ class Control:
 
             return array([omega, a]).reshape(2, 1)
            
-            # # Calcul de l’angle désiré vers la cible
-            # dx = target[0] - x[0]
-            # dy = target[1] - x[1]
-            # theta_desired = atan2(dy, dx)
-            # erreur_theta = (theta_desired - x[2]) % (2*pi)
-            # if erreur_theta > pi:
-            #     erreur_theta -= 2*pi
-            
-            # omega = float(self.kp_angle * erreur_theta)
-            # a = 0.0
-            # return array([omega, a]).reshape(2,1)
+           
     
   
     

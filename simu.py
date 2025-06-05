@@ -40,6 +40,7 @@ class Simulation:
 
     def run(self):
         while True:
+             
             # Efface le contenu précédent et redéfinit les axes
             clf()
             axis('square')
@@ -68,11 +69,7 @@ class Simulation:
                 self.robot.contourner_obstacle(self.obstacles, self.dt, self.fig, self.scale, self.target)
                 continue  # on saute cette itération pour ne pas exécuter le contrôle normal
 
-              
-
-
-                
-
+            
             # Calcul de la commande de contrôle (vitesse angulaire, accélération)
 
             self.robot.x[3] = 20
@@ -100,11 +97,13 @@ class Simulation:
 
         # Affiche le score final
         self.print_score()
+        close(self.fig)  # Ferme proprement la fenêtre
 
-        # Fonction interne d'affichage du score
-        def print_score(self):
-            score = 100 * self.targets_caught / self.t
-            print(f"\n\nTargets caught: {self.targets_caught}, Time: {self.t:.2f} s, Score: {score:.2f}\n")
+
+    # Fonction interne d'affichage du score
+    def print_score(self):
+        score = 100 * self.targets_caught / self.t
+        print(f"\n\nTargets caught: {self.targets_caught}, Time: {self.t:.2f} s, Score: {score:.2f}\n")
 
 
 # Lancement de la simulation si ce fichier est exécuté en tant que programme principal
