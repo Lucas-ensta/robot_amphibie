@@ -48,7 +48,7 @@ class Robot:
 
         return min_dist  # ou None si rien vu attention 
     
-    def sonar_left(self, obs, sonar_range=40.0, fov=pi/3):
+    def sonar_left(self, obs, sonar_range=40.0, fov=pi/4):
         """
         Simule ce que renverrai un sonar latéral gauche
         """
@@ -75,7 +75,7 @@ class Robot:
         return min_dist
     
 
-    def sonar_right(self, obs, sonar_range=40.0, fov=pi/3):
+    def sonar_right(self, obs, sonar_range=40.0, fov=pi/4):
         """
         Simule ce que renverrai un sonar latéral droit
         """
@@ -163,7 +163,7 @@ class Robot:
                 if dist is not None and (closest is None or dist < closest):
                     closest = dist
 
-            if closest is None or closest > 10.0:
+            if closest is None or closest > 5.0:
                 print("Obstacle contourné.")
                 break
 
@@ -189,19 +189,7 @@ class Robot:
         pause(0.015)
 
 
-    def choisir_cote_contournement(self, obstacle):
-        """
-        Return gauche ou droite en fonction de la direction qui demande le moins de rotation pour contourner l'obstacle 
-        """
-        x_pos, y_pos, theta = float(self.x[0]), float(self.x[1]), float(self.x[2])
-        ox, oy = float(obstacle[0]), float(obstacle[1])
-
-        angle_to_obs = atan2(oy - y_pos, ox - x_pos)
-
-        angle_diff_right = abs((angle_to_obs - (theta - pi / 2) + pi) % (2 * pi) - pi)
-        angle_diff_left = abs((angle_to_obs - (theta + pi / 2) + pi) % (2 * pi) - pi)
-
-        return 'droite' if angle_diff_right < angle_diff_left else 'gauche'
+   
 
 
 
